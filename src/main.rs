@@ -1,3 +1,5 @@
+use std::io::stdout;
+use std::io::Write;
 use std::io::{self, BufRead};
 
 #[derive(Debug)]
@@ -23,12 +25,8 @@ fn split_command(line: &String) -> Vec<String> {
     line.split(' ')
         .map(|s| s.to_string())
         .filter(|s| s.trim() != "")
-        .map(|s| s.to_string())
         .collect()
 }
-
-use std::io::stdout;
-use std::io::Write;
 
 fn display_prompt(shell: &Shell) {
     let cwd = std::env::current_dir().unwrap();
