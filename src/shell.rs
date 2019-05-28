@@ -1,11 +1,12 @@
 use isatty;
+use std::env;
 use std::io::{stdout, Write};
 
 use crate::utility::split_no_empty;
 
 #[derive(Debug)]
 pub struct Shell {
-    // pub env: Vec<(String, String)>,
+    pub env: Vec<(String, String)>,
     pub exit_status: i32,
     pub tty: bool,
     pub stop: bool,
@@ -14,7 +15,7 @@ pub struct Shell {
 impl Shell {
     pub fn new() -> Shell {
         Shell {
-            // env: Vec::new(),
+            env: env::vars().collect(),
             exit_status: 0,
             tty: isatty::stdin_isatty(),
             stop: false,
