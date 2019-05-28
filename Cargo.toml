@@ -5,3 +5,4 @@ authors = ["alexis <alexis.auriac@epitech.eu>"]
 edition = "2018"
 
 [dependencies]
+isatty = "0.1"
