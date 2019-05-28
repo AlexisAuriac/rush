@@ -1,6 +1,6 @@
 use crate::shell::Shell;
 
-pub fn builtin_env(sh: &mut Shell, command: &[String]) {
+pub fn builtin_env(sh: &mut Shell, _command: &[String]) {
     for (key, value) in sh.env.iter() {
         println!("{}={}", key, value);
     }

@@ -11,10 +11,10 @@ fn main() {
 
     sh.display_prompt();
     for line in stdin.lock().lines() {
-        sh.display_prompt();
         sh.handle_command(line.unwrap());
         if sh.stop {
             process::exit(sh.exit_status);
         }
+        sh.display_prompt();
     }
 }
