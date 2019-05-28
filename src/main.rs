@@ -12,13 +12,27 @@ struct Shell {
     stop: bool,
 }
 
-fn builtin_exit(shell: &mut Shell) {
-    shell.exit_status = 0;
+fn builtin_exit(shell: &mut Shell, command: &[String]) {
+    if command.len() > 2 {
+        println!("exit: Expression Syntax.");
+    }
+
+    if command.len() == 2 {
+        match command[1].parse::<u64>() {
+            Ok(n) => shell.exit_status = n as i32,
+            Err(_) => {
+                shell.exit_status = 1;
+                println!("exit: Expression Syntax.");
+                return;
+            }
+        }
+    }
+
     shell.stop = true;
 }
 
 struct BuiltinFunction {
-    f: fn(&mut Shell),
+    f: fn(&mut Shell, &[String]),
     name: &'static str,
 }
 
@@ -63,7 +77,7 @@ impl Shell {
 
         for builtin in BUILTINS.iter() {
             if command[0] == builtin.name {
-                (builtin.f)(self);
+                (builtin.f)(self, &command);
                 return;
             }
         }
