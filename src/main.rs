@@ -2,14 +2,30 @@ use isatty;
 use std::io::stdout;
 use std::io::Write;
 use std::io::{self, BufRead};
+use std::process;
 
 #[derive(Debug)]
 struct Shell {
     // env: Vec<(String, String)>,
-    exit_status: i8,
+    exit_status: i32,
     tty: bool,
     stop: bool,
 }
+
+fn builtin_exit(shell: &mut Shell) {
+    shell.exit_status = 0;
+    shell.stop = true;
+}
+
+struct BuiltinFunction {
+    f: fn(&mut Shell),
+    name: &'static str,
+}
+
+static BUILTINS: &'static [&'static BuiltinFunction] = &[&BuiltinFunction {
+    f: builtin_exit,
+    name: "exit",
+}];
 
 impl Shell {
     fn new() -> Shell {
@@ -37,6 +53,21 @@ impl Shell {
             }
         }
     }
+
+    fn handle_command(self: &mut Shell, line: String) {
+        let command = split_command(&line);
+
+        if command.len() == 0 {
+            return;
+        }
+
+        for builtin in BUILTINS.iter() {
+            if command[0] == builtin.name {
+                (builtin.f)(self);
+                return;
+            }
+        }
+    }
 }
 
 fn split_command(line: &String) -> Vec<String> {
@@ -54,10 +85,9 @@ fn main() {
     shell.display_prompt();
     for line in stdin.lock().lines() {
         shell.display_prompt();
-
-        let line = line.unwrap();
-        let command = split_command(&line);
-
-        println!("{:?}", command);
+        shell.handle_command(line.unwrap());
+        if shell.stop {
+            process::exit(shell.exit_status);
+        }
     }
 }
