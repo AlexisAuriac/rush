@@ -1,8 +1,7 @@
-use isatty;
-use std::collections::hash_map::HashMap;
 use std::env;
 use std::io::{stdout, Write};
-use std::process::Command;
+
+use isatty;
 
 use crate::utility::split_no_empty;
 
@@ -16,6 +15,7 @@ pub struct Shell {
 
 use nix::unistd::fork;
 use nix::unistd::ForkResult;
+use std::ffi::CString;
 
 impl Shell {
     pub fn new() -> Shell {
@@ -44,6 +44,49 @@ impl Shell {
         }
     }
 
+    fn wait_for_child(self: &mut Shell, child_pid: nix::unistd::Pid) {
+        match nix::sys::wait::waitpid(child_pid, Option::None) {
+            Ok(nix::sys::wait::WaitStatus::Exited(_, status)) => {
+                self.exit_status = status;
+            }
+            Ok(_) => println!("other"),
+            Err(err) => println!("{:?}", err),
+        }
+    }
+
+    fn child_exec_command(self: &mut Shell, command: &Vec<String>) {
+        let args: Vec<CString> = command
+            .iter()
+            .map(|s| CString::new(s.clone()).unwrap())
+            .collect();
+        let args = &args[..];
+
+        let cenv: Vec<CString> = self
+            .env
+            .iter()
+            .map(|(key, val)| CString::new(format!("{}={}", key, val)).unwrap())
+            .collect();
+        let cenv = &cenv[..];
+
+        let path = CString::new(command[0].clone()).unwrap();
+
+        match nix::unistd::execve(&path, &args, &cenv) {
+            Ok(_) => unimplemented!(),
+            Err(err) => println!("{:?}", err),
+        };
+    }
+
+    fn exec_command(self: &mut Shell, command: &Vec<String>) {
+        match fork() {
+            Ok(ForkResult::Parent { child }) => self.wait_for_child(child),
+            Ok(ForkResult::Child) => {
+                self.child_exec_command(&command);
+                std::process::exit(1);
+            }
+            Err(err) => println!("{:?}", err),
+        }
+    }
+
     pub fn handle_command(self: &mut Shell, line: String) {
         let command = split_no_empty(&line);
 
@@ -58,46 +101,6 @@ impl Shell {
             }
         }
 
-        match fork() {
-            Ok(ForkResult::Parent { child }) => {
-                println!("parent of {}", child);
-                match nix::sys::wait::waitpid(Option(child, {})) {
-                    nix::sys::wait::WaitStatus::Exited(_, status) => println!("exited"),
-                }
-            }
-            Ok(ForkResult::Child) => {
-                println!("child with pid {}", nix::unistd::getpid());
-                std::process::exit(1);
-            }
-            Err(err) => println!("{:?}", err),
-        }
-
-        // Command::new("ls")
-        // .env_clear()
-        // .env("PATH", "/bin")
-        // .spawn()
-        // .expect("piss off");
-
-        // let filtered_env: HashMap<String, String> = env::vars()
-        //     .filter(|&(ref k, _)| k == "TERM" || k == "TZ" || k == "LANG" || k == "PATH")
-        //     .collect();
-
-        // let filtered_env: HashMap<String, String> = HashMap::new();
-
-        // Command::new(&command[0])
-        // .env("PATH", "/bin")
-        // .env_clear()
-        // .envs(&self.env)
-        // .envs(&filtered_env)
-        // .spawn()
-        // .expect(&format!("{}: Command not found.", command[0]));
-        // if let Err(err) = Command::new(&command[0])
-        //     .args(&["hello"])
-        //     .env("PATH", "/bin")
-        //     .spawn()
-        // {
-        //     println!("{:?}", err);
-        // }
-        println!("end command");
+        self.exec_command(&command);
     }
 }
