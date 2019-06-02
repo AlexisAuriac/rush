@@ -1,21 +1,20 @@
+use std::collections::HashMap;
 use std::env;
+use std::ffi::CString;
 use std::io::{stdout, Write};
 
-use isatty;
+use nix::unistd::fork;
+use nix::unistd::ForkResult;
 
 use crate::utility::split_no_empty;
 
 #[derive(Debug)]
 pub struct Shell {
-    pub env: Vec<(String, String)>,
+    pub env: HashMap<String, String>,
     pub exit_status: i32,
     pub tty: bool,
     pub stop: bool,
 }
-
-use nix::unistd::fork;
-use nix::unistd::ForkResult;
-use std::ffi::CString;
 
 impl Shell {
     pub fn new() -> Shell {
