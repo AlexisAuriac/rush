@@ -5,16 +5,20 @@ mod builtins;
 mod shell;
 mod utility;
 
+use shell::*;
+
 fn main() {
-    let mut sh: shell::Shell = shell::Shell::new();
+    let mut sh: shell::Shell = shell::new_shell();
     let stdin = io::stdin();
 
-    sh.display_prompt();
+    display_prompt(&sh);
     for line in stdin.lock().lines() {
-        sh.handle_command(line.unwrap());
+        handle_command(&mut sh, line.unwrap());
         if sh.stop {
             process::exit(sh.exit_status);
         }
-        sh.display_prompt();
+        display_prompt(&sh);
     }
+
+    process::exit(sh.exit_status);
 }
