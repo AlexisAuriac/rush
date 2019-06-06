@@ -35,5 +35,12 @@ pub fn builtin_setenv(sh: &mut Shell, command: &[String]) {
         sh.exit_status = 1;
         return;
     }
+
+    if command.len() == 2 {
+        sh.env.insert(command[1].clone(), "".to_string());
+    } else {
+        sh.env.insert(command[1].clone(), command[2].clone());
+    }
+
     sh.exit_status = 0;
 }
