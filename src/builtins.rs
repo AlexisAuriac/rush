@@ -3,6 +3,7 @@ use crate::shell::Shell;
 mod builtin_env;
 mod builtin_exit;
 mod builtin_setenv;
+mod builtin_unsetenv;
 
 pub struct BuiltinFunction {
     pub f: fn(&mut Shell, &[String]),
@@ -21,5 +22,9 @@ pub static BUILTINS: &'static [&'static BuiltinFunction] = &[
     &BuiltinFunction {
         f: builtin_setenv::builtin_setenv,
         name: "setenv",
+    },
+    &BuiltinFunction {
+        f: builtin_unsetenv::builtin_unsetenv,
+        name: "unsetenv",
     },
 ];
