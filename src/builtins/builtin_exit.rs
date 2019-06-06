@@ -2,7 +2,7 @@ use crate::shell::Shell;
 
 pub fn builtin_exit(sh: &mut Shell, command: &[String]) {
     if command.len() > 2 {
-        println!("exit: Expression Syntax.");
+        eprintln!("exit: Expression Syntax.");
         sh.exit_status = 1;
         return;
     }
@@ -12,7 +12,7 @@ pub fn builtin_exit(sh: &mut Shell, command: &[String]) {
             Ok(n) => sh.exit_status = n as i32,
             Err(_) => {
                 sh.exit_status = 1;
-                println!("exit: Expression Syntax.");
+                eprintln!("exit: Expression Syntax.");
                 return;
             }
         }

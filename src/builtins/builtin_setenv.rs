@@ -5,7 +5,7 @@ use crate::shell::Shell;
 
 fn error_setenv(command: &[String]) -> bool {
     if command.len() > 3 {
-        println!("setenv: Too many arguments.");
+        eprintln!("setenv: Too many arguments.");
         return true;
     }
 
@@ -17,10 +17,10 @@ fn error_setenv(command: &[String]) -> bool {
     let key = &command[1];
 
     if !RLETTER.is_match(&key) {
-        println!("setenv: Variable name must begin with a letter.");
+        eprintln!("setenv: Variable name must begin with a letter.");
         return true;
     } else if !RKEY.is_match(&key) {
-        println!("setenv: Variable name must contain alphanumeric characters.");
+        eprintln!("setenv: Variable name must contain alphanumeric characters.");
         return true;
     }
 

@@ -2,7 +2,7 @@ use crate::shell::Shell;
 
 pub fn builtin_unsetenv(sh: &mut Shell, command: &[String]) {
     if command.len() == 1 {
-        println!("unsetenv: Too few arguments.");
+        eprintln!("unsetenv: Too few arguments.");
         sh.exit_status = 1;
         return;
     }

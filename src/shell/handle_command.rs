@@ -20,7 +20,7 @@ fn wait_for_child(sh: &mut Shell, child_pid: nix::unistd::Pid) {
             sh.exit_status = status;
         }
         Ok(_) => println!("other"),
-        Err(err) => println!("{:?}", err),
+        Err(err) => eprintln!("{}", err),
     }
 }
 
@@ -62,10 +62,10 @@ fn child_exec_command(sh: &mut Shell, command: &Vec<String>) {
     match get_command_path(sh, &command[0]) {
         Ok(path) => {
             if let Err(err) = nix::unistd::execve(&path, &args, &cenv) {
-                println!("{}", err.as_errno().unwrap().desc());
+                eprintln!("{}", err.as_errno().unwrap().desc());
             }
         }
-        Err(err) => println!("{}", err),
+        Err(err) => eprintln!("{}", err),
     };
     std::process::exit(1);
 }
@@ -74,6 +74,6 @@ pub fn exec_command(sh: &mut Shell, command: &Vec<String>) {
     match fork() {
         Ok(ForkResult::Parent { child }) => wait_for_child(sh, child),
         Ok(ForkResult::Child) => child_exec_command(sh, &command),
-        Err(err) => println!("{:?}", err),
+        Err(err) => eprintln!("{}", err),
     }
 }
