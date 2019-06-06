@@ -1,6 +1,9 @@
 use std::io::{self, BufRead};
 use std::process;
 
+#[macro_use]
+extern crate lazy_static;
+
 mod builtins;
 mod shell;
 mod utility;
