@@ -32,6 +32,10 @@ fn get_command_path(sh: &Shell, command: &String) -> Result<CString, String> {
         };
     }
 
+    if !sh.env.contains_key("PATH") {
+        return Err(format!("{}: Command not found.", command).to_string());
+    }
+
     let paths = sh.env["PATH"].split(':');
 
     for p in paths {
