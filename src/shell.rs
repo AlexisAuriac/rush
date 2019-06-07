@@ -32,12 +32,13 @@ pub fn display_prompt(sh: &Shell) {
     }
 
     if let Some(dir) = cwd.file_name() {
-        if let Some(dir) = dir.to_str() {
-            print!("{} -> ({})$ ", sh.exit_status, dir);
-            if let Err(err) = stdout().flush() {
-                eprintln!("{}", err);
-            }
-        }
+        print!("{} -> ({})$ ", sh.exit_status, dir.to_str().unwrap());
+    } else {
+        print!("{} -> ({})$ ", sh.exit_status, cwd.to_str().unwrap());
+    }
+
+    if let Err(err) = stdout().flush() {
+        eprintln!("{}", err);
     }
 }
 
