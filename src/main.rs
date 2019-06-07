@@ -23,5 +23,8 @@ fn main() {
         display_prompt(&sh);
     }
 
+    if sh.tty {
+        println!("exit");
+    }
     process::exit(sh.exit_status);
 }
