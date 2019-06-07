@@ -1,5 +1,6 @@
 use crate::shell::Shell;
 
+mod builtin_cd;
 mod builtin_env;
 mod builtin_exit;
 mod builtin_setenv;
@@ -26,5 +27,9 @@ pub static BUILTINS: &'static [&'static BuiltinFunction] = &[
     &BuiltinFunction {
         f: builtin_unsetenv::builtin_unsetenv,
         name: "unsetenv",
+    },
+    &BuiltinFunction {
+        f: builtin_cd::builtin_cd,
+        name: "cd",
     },
 ];
