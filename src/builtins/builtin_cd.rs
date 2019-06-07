@@ -1,10 +1,9 @@
 use crate::shell::Shell;
 
-fn cd_home(sh: &mut Shell) {
+fn cd_home(sh: &mut Shell) -> bool {
     if !sh.env.contains_key("HOME") {
         eprintln!("cd: Can't change to home directory.");
-        sh.exit_status = 1;
-        return;
+        return false;
     }
 
     let home = &sh.env["HOME"];
@@ -12,66 +11,77 @@ fn cd_home(sh: &mut Shell) {
 
     if let Err(_) = std::env::set_current_dir(home) {
         eprintln!("cd: Can't change to home directory.");
-        sh.exit_status = 1;
+        return false;
     } else {
-        sh.exit_status = 0;
+        return true;
     }
 }
 
-fn cd_back(sh: &mut Shell) {
+fn cd_back(sh: &mut Shell) -> bool {
     if !sh.env.contains_key("OLDPWD") {
         eprintln!(": No such file or directory.");
-        sh.exit_status = 1;
-        return;
+        return false;
     }
 
     let oldpwd_str = &sh.env["OLDPWD"];
     let oldpwd = std::path::Path::new(&oldpwd_str);
 
     if let Err(_) = std::env::set_current_dir(oldpwd) {
-        eprintln!("{}: No such file or directory.\n", oldpwd_str);
-        sh.exit_status = 1;
+        eprintln!("{}: No such file or directory.", oldpwd_str);
+        return false;
     } else {
-        sh.exit_status = 0;
+        return true;
     }
 }
 
-fn cd_path(sh: &mut Shell, path_str: &String) {
+fn cd_path(path_str: &str) -> bool {
     let path = std::path::Path::new(&path_str);
 
     if !path.exists() {
         eprintln!("{}: No such file or directory.", path_str);
-        sh.exit_status = 1;
-        return;
+        return false;
     } else if !path.is_dir() {
         eprintln!("{}: Not a directory.", path_str);
-        sh.exit_status = 1;
-        return;
+        return false;
     }
 
     if let Err(_) = std::env::set_current_dir(path) {
-        eprintln!("{}: No such file or directory.\n", path_str);
-        sh.exit_status = 1;
+        eprintln!("{}: No such file or directory.", path_str);
+        return false;
     } else {
-        sh.exit_status = 0;
+        return true;
     }
 }
 
+fn update_pwd(sh: &mut Shell, oldcwd: &std::path::PathBuf) {
+    let cwd = std::env::current_dir().unwrap();
+    let cwd = cwd.to_str().unwrap().to_string();
+
+    let oldcwd = oldcwd.to_str().unwrap().to_string();
+
+    sh.env.insert(String::from("PWD"), cwd);
+    sh.env.insert(String::from("OLDPWD"), oldcwd);
+}
+
 pub fn builtin_cd(sh: &mut Shell, command: &[String]) {
-    // let cwd = std::env::current_dir().unwrap();
+    let cwd = std::env::current_dir().unwrap();
+    let successful: bool;
 
     if command.len() == 1 {
-        cd_home(sh);
-        return;
+        successful = cd_home(sh);
     } else if command.len() > 2 {
         eprintln!("cd: Too many arguments.");
-        sh.exit_status = 1;
-        return;
+        successful = false;
     } else if command[1] == "-" {
-        cd_back(sh);
+        successful = cd_back(sh);
     } else {
-        cd_path(sh, &command[1]);
+        successful = cd_path(&command[1]);
     }
 
-    // update_pwd(oldpwd);
+    if successful {
+        update_pwd(sh, &cwd);
+        sh.exit_status = 0;
+    } else {
+        sh.exit_status = 1;
+    }
 }
