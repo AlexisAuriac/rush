@@ -14,12 +14,40 @@ fn is_exec(path: &str) -> Result<(), String> {
     return Ok(());
 }
 
+struct ErrorSignal {
+    signal: nix::sys::signal::Signal,
+    value: i32,
+    mssg: &'static str,
+}
+
+static ERRORS_SIGNAL: &'static [&'static ErrorSignal] = &[
+    &ErrorSignal {
+        signal: nix::sys::signal::Signal::SIGFPE,
+        value: 136,
+        mssg: "Floating exception",
+    },
+    &ErrorSignal {
+        signal: nix::sys::signal::Signal::SIGSEGV,
+        value: 139,
+        mssg: "Segmentation fault",
+    },
+];
+
 fn wait_for_child(sh: &mut Shell, child_pid: nix::unistd::Pid) {
     match nix::sys::wait::waitpid(child_pid, Option::None) {
         Ok(nix::sys::wait::WaitStatus::Exited(_, status)) => {
             sh.exit_status = status;
         }
-        Ok(_) => println!("other"),
+        Ok(nix::sys::wait::WaitStatus::Signaled(_, sig, core_dumped)) => {
+            for err_sig in ERRORS_SIGNAL {
+                if err_sig.signal == sig {
+                    let core_dumped = if core_dumped { "(core dumped)" } else { "" };
+                    eprintln!("{} {}", err_sig.mssg, core_dumped);
+                    sh.exit_status = err_sig.value;
+                }
+            }
+        }
+        Ok(_) => unimplemented!(),
         Err(err) => eprintln!("{}", err),
     }
 }
