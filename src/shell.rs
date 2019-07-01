@@ -19,7 +19,7 @@ pub fn new_shell() -> Shell {
     Shell {
         env: env::vars().collect(),
         exit_status: 0,
-        tty: isatty::stdin_isatty(),
+        tty: atty::is(atty::Stream::Stdin),
         stop: false,
     }
 }
