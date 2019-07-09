@@ -1,6 +1,6 @@
 use crate::shell::Shell;
 
-pub fn builtin_exit(sh: &mut Shell, command: &[String]) {
+pub fn builtin_exit(sh: &mut Shell, command: &[&str]) {
     if command.len() > 2 {
         eprintln!("exit: Expression Syntax.");
         sh.exit_status = 1;

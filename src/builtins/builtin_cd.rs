@@ -16,7 +16,7 @@ fn get_dest_home(sh: &Shell) -> Result<(PathBuf, String), String> {
     ));
 }
 
-fn get_dest_path(path_str: &String) -> Result<(PathBuf, String), String> {
+fn get_dest_path(path_str: &str) -> Result<(PathBuf, String), String> {
     let path = Path::new(&path_str);
 
     if !path.exists() {
@@ -44,7 +44,7 @@ fn get_dest_back(sh: &Shell) -> Result<(PathBuf, String), String> {
     ));
 }
 
-fn get_dest(sh: &Shell, command: &[String]) -> Result<(PathBuf, String), String> {
+fn get_dest(sh: &Shell, command: &[&str]) -> Result<(PathBuf, String), String> {
     return if command.len() > 2 {
         Err("cd: Too many arguments.".to_string())
     } else if command.len() == 1 {
@@ -76,7 +76,7 @@ fn change_dir(sh: &mut Shell, dest: &PathBuf, err_msg: String) {
     update_pwd(sh, dest, &oldpwd);
 }
 
-pub fn builtin_cd(sh: &mut Shell, command: &[String]) {
+pub fn builtin_cd(sh: &mut Shell, command: &[&str]) {
     match get_dest(sh, &command) {
         Ok((dest, err)) => change_dir(sh, &dest, err),
         Err(err) => {

@@ -7,7 +7,7 @@ mod builtin_setenv;
 mod builtin_unsetenv;
 
 pub struct BuiltinFunction {
-    pub func: fn(&mut Shell, &[String]),
+    pub func: fn(&mut Shell, &[&str]),
     pub name: &'static str,
 }
 

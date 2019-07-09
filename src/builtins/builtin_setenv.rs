@@ -3,7 +3,7 @@ use regex::Regex;
 use crate::builtins::builtin_env::builtin_env;
 use crate::shell::Shell;
 
-fn error_setenv(command: &[String]) -> bool {
+fn error_setenv(command: &[&str]) -> bool {
     if command.len() > 3 {
         eprintln!("setenv: Too many arguments.");
         return true;
@@ -27,7 +27,7 @@ fn error_setenv(command: &[String]) -> bool {
     return false;
 }
 
-pub fn builtin_setenv(sh: &mut Shell, command: &[String]) {
+pub fn builtin_setenv(sh: &mut Shell, command: &[&str]) {
     if command.len() == 1 {
         builtin_env(sh, command);
         return;
@@ -37,9 +37,10 @@ pub fn builtin_setenv(sh: &mut Shell, command: &[String]) {
     }
 
     if command.len() == 2 {
-        sh.env.insert(command[1].clone(), "".to_string());
+        sh.env.insert(command[1].to_string(), "".to_string());
     } else {
-        sh.env.insert(command[1].clone(), command[2].clone());
+        sh.env
+            .insert(command[1].to_string(), command[2].to_string());
     }
 
     sh.exit_status = 0;

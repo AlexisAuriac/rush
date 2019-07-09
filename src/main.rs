@@ -18,9 +18,11 @@ fn main() {
     display_prompt(&sh);
     for line in stdin.lock().lines() {
         handle_command(&mut sh, line.unwrap());
+
         if sh.stop {
             exit(sh.exit_status);
         }
+
         display_prompt(&sh);
     }
 

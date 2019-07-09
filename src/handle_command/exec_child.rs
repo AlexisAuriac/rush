@@ -12,7 +12,7 @@ fn is_exec(path: &str) -> Result<(), String> {
     return Ok(());
 }
 
-fn get_command_path(sh: &mut Shell, command: &String) -> Result<CString, String> {
+fn get_command_path(sh: &mut Shell, command: &str) -> Result<CString, String> {
     if command.contains('/') {
         return Ok(CString::new(command.clone()).unwrap());
     }
@@ -34,7 +34,7 @@ fn get_command_path(sh: &mut Shell, command: &String) -> Result<CString, String>
     return Err(format!("{}: Command not found.", command));
 }
 
-pub fn exec_child(sh: &mut Shell, command: &[String]) {
+pub fn exec_child(sh: &mut Shell, command: &[&str]) {
     let args: Vec<CString> = command
         .iter()
         .map(|s| CString::new(s.clone()).unwrap())
@@ -48,7 +48,7 @@ pub fn exec_child(sh: &mut Shell, command: &[String]) {
         .collect();
     let cenv = &cenv[..];
 
-    match get_command_path(sh, &command[0]) {
+    match get_command_path(sh, command[0]) {
         Ok(path) => {
             if let Err(err) = execve(&path, args, cenv) {
                 eprintln!("{}", err);

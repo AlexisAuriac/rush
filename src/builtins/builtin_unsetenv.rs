@@ -1,6 +1,6 @@
 use crate::shell::Shell;
 
-pub fn builtin_unsetenv(sh: &mut Shell, command: &[String]) {
+pub fn builtin_unsetenv(sh: &mut Shell, command: &[&str]) {
     if command.len() == 1 {
         eprintln!("unsetenv: Too few arguments.");
         sh.exit_status = 1;
@@ -10,7 +10,7 @@ pub fn builtin_unsetenv(sh: &mut Shell, command: &[String]) {
     let (_, keys) = command.split_first().unwrap();
 
     for key in keys {
-        sh.env.remove(key);
+        sh.env.remove(&key.to_string());
     }
 
     sh.exit_status = 0;
