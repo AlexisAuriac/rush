@@ -6,8 +6,8 @@ use crate::shell::Shell;
 mod exec_child;
 mod exec_parent;
 
-use crate::handle_command::exec_child::exec_child;
-use crate::handle_command::exec_parent::exec_parent;
+use exec_child::exec_child;
+use exec_parent::exec_parent;
 
 fn split_command(command: &str) -> Vec<&str> {
     command.split_whitespace().collect()
@@ -17,7 +17,7 @@ fn exec_command(sh: &mut Shell, command: &[&str]) {
     match fork() {
         Ok(ForkResult::Parent { child }) => exec_parent(sh, child),
         Ok(ForkResult::Child) => exec_child(sh, command),
-        Err(_) => println!("err"),
+        Err(err) => eprintln!("{}", err),
     }
 }
 

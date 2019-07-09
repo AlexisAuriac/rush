@@ -2,27 +2,26 @@ use std::collections::HashMap;
 use std::env;
 use std::io::{stdout, Write};
 
-#[derive(Debug)]
 pub struct Shell {
+    pub tty: bool,
     pub env: HashMap<String, String>,
     pub exit_status: i32,
-    pub tty: bool,
     pub stop: bool,
 }
 
 impl Shell {
     pub fn new() -> Shell {
         Shell {
+            tty: atty::is(atty::Stream::Stdin),
             env: env::vars().collect(),
             exit_status: 0,
-            tty: atty::is(atty::Stream::Stdin),
             stop: false,
         }
     }
 }
 
-fn print_prompt(exit_status: i32, cwd: &str) {
-    print!("{} -> ({})$ ", exit_status, cwd);
+fn print_prompt(status: i32, cwd: &str) {
+    print!("{} -> ({})$ ", status, cwd);
 
     if let Err(err) = stdout().flush() {
         eprintln!("{}", err);

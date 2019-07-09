@@ -12,7 +12,7 @@ fn is_exec(path: &str) -> Result<(), String> {
     return Ok(());
 }
 
-fn get_command_path(sh: &mut Shell, command: &str) -> Result<CString, String> {
+fn get_path(sh: &mut Shell, command: &str) -> Result<CString, String> {
     if command.contains('/') {
         return Ok(CString::new(command.clone()).unwrap());
     }
@@ -35,27 +35,26 @@ fn get_command_path(sh: &mut Shell, command: &str) -> Result<CString, String> {
 }
 
 pub fn exec_child(sh: &mut Shell, command: &[&str]) {
-    let args: Vec<CString> = command
+    let cargs: Vec<CString> = command
         .iter()
-        .map(|s| CString::new(s.clone()).unwrap())
+        .map(|arg| CString::new(arg.to_string()).unwrap())
         .collect();
-    let args = &args[..];
 
     let cenv: Vec<CString> = sh
         .env
         .iter()
         .map(|(key, val)| CString::new(format!("{}={}", key, val)).unwrap())
         .collect();
-    let cenv = &cenv[..];
 
-    match get_command_path(sh, command[0]) {
+    match get_path(sh, command[0]) {
         Ok(path) => {
-            if let Err(err) = execve(&path, args, cenv) {
+            if let Err(err) = execve(&path, &cargs, &cenv) {
                 eprintln!("{}", err);
             }
         }
-        Err(err) => eprintln!("{}", err),
+        Err(err) => {
+            eprintln!("{}", err);
+            std::process::exit(1);
+        }
     }
-
-    std::process::exit(0);
 }
