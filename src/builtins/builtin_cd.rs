@@ -1,4 +1,4 @@
-use std::env::current_dir;
+use std::env::{current_dir, set_current_dir};
 use std::path::{Path, PathBuf};
 
 use crate::shell::Shell;
@@ -16,21 +16,6 @@ fn get_dest_home(sh: &Shell) -> Result<(PathBuf, String), String> {
     ));
 }
 
-fn get_dest_path(path_str: &str) -> Result<(PathBuf, String), String> {
-    let path = Path::new(&path_str);
-
-    if !path.exists() {
-        return Err(format!("{}: No such file or directory.", path_str));
-    } else if !path.is_dir() {
-        return Err(format!("{}: Not a directory.", path_str));
-    }
-
-    return Ok((
-        path.to_path_buf(),
-        format!("{}: Not a directory.", path_str),
-    ));
-}
-
 fn get_dest_back(sh: &Shell) -> Result<(PathBuf, String), String> {
     if !sh.env.contains_key("OLDPWD") {
         return Err(": No such file or directory.".to_string());
@@ -44,6 +29,21 @@ fn get_dest_back(sh: &Shell) -> Result<(PathBuf, String), String> {
     ));
 }
 
+fn get_dest_path(path_str: &str) -> Result<(PathBuf, String), String> {
+    let path = Path::new(path_str);
+
+    if !path.exists() {
+        return Err(format!("{}: No such file or directory.", path_str));
+    } else if !path.is_dir() {
+        return Err(format!("{}: Not a directory.", path_str));
+    }
+
+    return Ok((
+        path.to_path_buf(),
+        format!("{}: Not a directory.", path_str),
+    ));
+}
+
 fn get_dest(sh: &Shell, command: &[&str]) -> Result<(PathBuf, String), String> {
     return if command.len() > 2 {
         Err("cd: Too many arguments.".to_string())
@@ -52,7 +52,7 @@ fn get_dest(sh: &Shell, command: &[&str]) -> Result<(PathBuf, String), String> {
     } else if command[1] == "-" {
         get_dest_back(sh)
     } else {
-        get_dest_path(&command[1])
+        get_dest_path(command[1])
     };
 }
 
@@ -67,7 +67,7 @@ fn update_pwd(sh: &mut Shell, new: &PathBuf, old: &PathBuf) {
 fn change_dir(sh: &mut Shell, dest: &PathBuf, err_msg: String) {
     let oldpwd = current_dir().unwrap();
 
-    if let Err(_) = std::env::set_current_dir(dest) {
+    if let Err(_) = set_current_dir(dest) {
         eprintln!("{}", err_msg);
         sh.exit_status = 1;
         return;

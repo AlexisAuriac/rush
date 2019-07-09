@@ -6,20 +6,20 @@ use crate::shell::Shell;
 
 struct ErrorSignal {
     signal: Signal,
-    value: i32,
     mssg: &'static str,
+    value: i32,
 }
 
 static ERROR_SIGNALS: &'static [&'static ErrorSignal] = &[
     &ErrorSignal {
         signal: Signal::SIGFPE,
-        value: 136,
         mssg: "Floating exception",
+        value: 136,
     },
     &ErrorSignal {
         signal: Signal::SIGSEGV,
-        value: 139,
         mssg: "Segmentation fault",
+        value: 139,
     },
 ];
 
