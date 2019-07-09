@@ -38,7 +38,7 @@ pub fn exec_parent(sh: &mut Shell, child_pid: Pid) {
     match waitpid(child_pid, Option::None) {
         Ok(WaitStatus::Exited(_, status)) => sh.exit_status = status,
         Ok(WaitStatus::Signaled(_, sig, core_dumped)) => print_err_sig(sh, sig, core_dumped),
-        Ok(_) => unimplemented!(),
+        Ok(_) => (),
         Err(err) => eprintln!("{}", err),
     }
 }
