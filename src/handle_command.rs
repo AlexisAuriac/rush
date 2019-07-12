@@ -10,6 +10,11 @@ use exec_child::exec_child;
 use exec_parent::exec_parent;
 
 fn split_command(command: &str) -> Vec<&str> {
+    let command = match command.find('#') {
+        Some(idx) => &command[..idx],
+        None => command,
+    };
+
     command.split_whitespace().collect()
 }
 
