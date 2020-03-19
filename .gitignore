@@ -1,2 +1,8 @@
+# Cargo
 /target
 **/*.rs.bk
+
+# Sublime Text
+*.sublime-project
+*.sublime-workspace
+
